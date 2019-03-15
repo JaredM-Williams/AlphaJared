@@ -23,7 +23,7 @@ class Node:
         """
     node_count = 0
 
-    def __init__(self, game_state, index):
+    def __init__(self, game_state, index, parent):
         """Inits a Node with a GameState.
 
         One Node is initialized with a unique GameState, and it doesn't
@@ -42,7 +42,7 @@ class Node:
             """
         self.game_state = game_state
         self.index = index
-        self.value = 0
+        self.parent = parent
         self.actions = game_state.allowedActions
         self.children = np.empty(len(self.actions), dtype=Node)
         self.children_value = np.zeros(len(self.actions))
@@ -60,7 +60,8 @@ class Node:
             Args:
                 value: the addition to the value attribute.
             """
-        self.children_value[index] += value
+        if value:
+            self.children_value[index] += 1
         self.children_visits[index] += 1
 
     def isLeaf(self):
@@ -77,26 +78,29 @@ class Node:
             Returns:
                 The selected Node and it's index to the parent.
             """
+        if self.game_state.isEndGame:
+            #print(self.isLeaf())
+            return None, self.game_state.value[2] * self.game_state.playerTurn
         best_value = - float("inf")
         selected_index = 0
-        #print("children", self.children, len(self.children))
         for c in range(len(self.children)):
             uct_value = (self.children_value[c] /
                          (self.children_visits[c] + self.epsilon) +
-                         sqrt(log(self.children_visits[c]+1) / (self.children_visits[c] + self.epsilon)) +
+                         sqrt(log(self.parent.children_visits[self.index]+1) / (self.children_visits[c] + self.epsilon)) + #first visits needs to THIS.visits, not the child visits
                          random() * self.epsilon)
-            print(uct_value, " "),
+            #print(uct_value, " "),
             if uct_value > best_value:
                 selected_index = c
                 best_value = uct_value
-        print()
+        #print()
         #print ("best value:", best_value)
+        #print(self.children)
         if self.children[selected_index] is None:
             self.leaf = False
             Node.node_count += 1
             action = self.game_state.allowedActions[selected_index]
             new_game_state = self.game_state.takeAction(action)[0]
-            self.children[selected_index] = Node(new_game_state, selected_index)
+            self.children[selected_index] = Node(new_game_state, selected_index, self)
         return self.children[selected_index], selected_index
 
 
