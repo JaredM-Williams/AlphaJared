@@ -12,7 +12,7 @@ def visit_count_test():
         print()
 
 def value_test():
-    while True:
+    for x in range(10000):
         new_tree.iteration()
         print(new_tree.root.children_value)
 
@@ -27,6 +27,8 @@ def rollout_root():
         new_tree.root.rollout()
         x += 1
         print(x)
+
+
 #def win_loss_tie_test():
 value_test()
 
