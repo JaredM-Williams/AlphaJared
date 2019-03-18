@@ -21,7 +21,6 @@ class Node:
     Attributes:
         node_count: keeps track of how many nodes there are.
         """
-    node_count = 0
 
     def __init__(self, game_state, index, parent):
         """Inits a Node with a GameState.
@@ -47,10 +46,9 @@ class Node:
         self.children = np.empty(len(self.actions), dtype=Node)
         self.children_value = np.zeros(len(self.actions))
         self.children_visits = np.zeros(len(self.actions))
-        self.leaf = True
         self.epsilon = 1e-6
 
-    def update_stats(self, index, value):
+    def update_stats(self, value):
         """Updates the value and visits attributes, called by each visited Node
            during backpropagation.
 
@@ -60,15 +58,9 @@ class Node:
             Args:
                 value: the addition to the value attribute.
             """
-        if value:
-            self.children_value[index] += 1
-        self.children_visits[index] += 1
-
-    def isLeaf(self):
-        """Returns:
-            A boolean of if the Node is a leaf, aka has no children.
-            """
-        return self.leaf
+        if value is not -1:
+            self.parent.children_value[self.index] += 1
+        self.parent.children_visits[self.index] += 1
 
     def select(self):
         """Looks at the children nodes, and selects one based on the Upper Confidence
@@ -78,30 +70,27 @@ class Node:
             Returns:
                 The selected Node and it's index to the parent.
             """
-        if self.game_state.isEndGame:
-            #print(self.isLeaf())
-            return None, self.game_state.value[2] * self.game_state.playerTurn
         best_value = - float("inf")
         selected_index = 0
+        end_val = None
+        end = False
         for c in range(len(self.children)):
             uct_value = (self.children_value[c] /
                          (self.children_visits[c] + self.epsilon) +
-                         sqrt(log(self.parent.children_visits[self.index]+1) / (self.children_visits[c] + self.epsilon)) + #first visits needs to THIS.visits, not the child visits
+                         sqrt(log(self.parent.children_visits[self.index]+1) / (self.children_visits[c] + self.epsilon)) +
                          random() * self.epsilon)
-            #print(uct_value, " "),
             if uct_value > best_value:
                 selected_index = c
                 best_value = uct_value
-        #print()
-        #print ("best value:", best_value)
-        #print(self.children)
         if self.children[selected_index] is None:
-            self.leaf = False
-            Node.node_count += 1
             action = self.game_state.allowedActions[selected_index]
             new_game_state = self.game_state.takeAction(action)[0]
             self.children[selected_index] = Node(new_game_state, selected_index, self)
-        return self.children[selected_index], selected_index
+            end = True
+        if self.children[selected_index].game_state.isEndGame:
+            end_val = self.children[selected_index].game_state.value
+            end = True
+        return self.children[selected_index], end_val, end
 
 
 
