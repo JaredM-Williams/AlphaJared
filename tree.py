@@ -18,31 +18,26 @@ class Tree:
         self.root.parent.children[0] = root
 
     def iteration(self):
-        visited = [[self.root.parent, self.root.index]]   # keeps track of what has been visited
+        visited = [self.root]   # keeps track of what has been visited
         current = self.root  # starts at the root
-        leaf_bool = current.isLeaf()  # checks if the root is a leaf
-        while not leaf_bool: # iterates until it finds a Node with no children
-            history = current # stores the backstep node
-            current, index = current.select() # finds the new node and its index in the backstep node
-            visited.append([history, index])
-            leaf_bool = current.isLeaf()
-        new_node, index = current.select()
-        if new_node is Node:
-            visited.append([current, index])
-            roll_num = new_node.rollout()
-            if roll_num is new_node.game_state.playerTurn:
-                value_addition = True
-            else:
-                value_addition = False
+        end = False
+        while not end:
+            current, end_val, end = current.select()
+            visited.append(current)
+        if end_val is None:
+            rollout = current.rollout()
+            matching = rollout == current.game_state.playerTurn
+            tie = rollout == 0
         else:
-            if index is 1:
-                value_addition = True
+            tie = end_val[1] == 0
+            matching = True
+        if not tie:
+            if matching:
+                value_addition = 1
             else:
-                value_addition = False
-
-        for visits_array in reversed(visited):
-            visits_array[0].update_stats(visits_array[1], value_addition)
-            value_addition = not value_addition
-
+                value_addition = -1
+            for visits_array in reversed(visited):
+                visits_array.update_stats(value_addition)
+                value_addition = -value_addition
 
 
