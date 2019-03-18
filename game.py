@@ -136,13 +136,15 @@ class GameState():
 		self.playerTurn = playerTurn
 		self.binary = self._binary()
 		self.id = self._convertStateToId()
-		self.allowedActions = self._allowedActions()
 		self.isEndGame = self._checkForEndGame()
+		self.allowedActions = self._allowedActions()
 		self.value = self._getValue()
 		self.score = self._getScore()
 
 	def _allowedActions(self):
 		allowed = []
+		if self.isEndGame:
+			return allowed
 		for i in range(len(self.board)):
 			if i >= len(self.board) - 7:
 				if self.board[i]==0:
