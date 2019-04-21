@@ -143,8 +143,8 @@ class GameState():
 
 	def _allowedActions(self):
 		allowed = []
-		if self.isEndGame:
-			return allowed
+		#if self.isEndGame:
+		#	return allowed
 		for i in range(len(self.board)):
 			if i >= len(self.board) - 7:
 				if self.board[i]==0:
