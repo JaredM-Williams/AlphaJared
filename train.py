@@ -14,7 +14,7 @@ def main():
     #data_gen(10)
     #test_individual_prediction()
     #make_new_nn()
-    data_gen(5000)
+    data_gen(1)
     #test_individual_prediction()
     #model = Connect4Model()
     #model.build()
