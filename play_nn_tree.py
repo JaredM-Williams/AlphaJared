@@ -35,7 +35,7 @@ def tree_record(gamestate):
     game_list.append(tree.root.proper_board)
     move_list.append(tree.root.nn_prediction[0])
     while True:
-        for y in range(300):
+        for y in range(5):
             tree.iteration()
         max_index = np.where(tree.root.children_visits == np.amax(tree.root.children_visits))[0][0]
         game.step(tree.root.actions[max_index])
