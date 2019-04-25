@@ -8,14 +8,13 @@ used by the Tree class.
 from math import sqrt
 import numpy as np
 from game import Game
-from keras.models import model_from_json
 
 class Tree:
     """a Tree obejct, created to map out possibilites of the
        game Connect4 and select the best move from the root.
         """
 
-    def __init__(self, model_path, weights_path, gamestate_start=Game().gameState):
+    def __init__(self, nn, gamestate_start=Game().gameState):
         """Inits a Tree with two associated Nodes.
 
         One Node is the root, and is initialized with a blank GameState.
@@ -25,11 +24,7 @@ class Tree:
         Attributes:
             root: The root Node
             """
-        json_file = open(model_path, 'r')
-        loaded_model_json = json_file.read()
-        json_file.close()
-        self.nn = model_from_json(loaded_model_json)
-        self.nn.load_weights(weights_path)
+        self.nn = nn
         self.root = Node(gamestate_start, index=0, parent=Node(game_state=Game().gameState, index=None, parent=None, nn=self.nn), nn=self.nn)
         self.root.parent.children[0] = self.root
 
