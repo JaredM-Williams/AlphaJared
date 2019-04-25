@@ -154,8 +154,15 @@ def challenge():
                 break
         return winner
 
-    champion_tree = Tree("model.json", "champion.h5")
-    challenger_tree = Tree("model.json", "challenger.h5")
+    json_file = open("model.json", 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    champ_model = model_from_json(loaded_model_json)
+    chall_model = model_from_json(loaded_model_json)
+    champ_model.load_weights("champion.h5")
+    chall_model.load_weights("challenger.h5")
+    champion_tree = Tree(champ_model)
+    challenger_tree = Tree(chall_model)
     game_num = 1000
     winning_balance = 0
     for i in range(game_num):
